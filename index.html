@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Погода від Надії</title>
+</head>
+<body>
+  <div class="main-container">
+    <div class="text-form">
+      <h1>Привіт, хочеш дізнатися <br> погоду у будь-якому місті зараз?</h1>
+     
+      <select id="language-selector">
+        <option value="uk" selected>Українська</option>
+        <option value="ru">Русский</option>
+        <option value="en">English</option>
+      </select>
+
+      <form id="city-form">
+        <input type="text" id="city-input" placeholder="Введи назву міста" required>
+        <button type="submit">Тепер натисни тут</button>
+      </form>
+
+      <div id="weather-data"></div>
+    </div>
+    <div id="earth_div"></div>
+  </div>
+
+  <style>
+     .language-selector {
+      width: 150px;
+      margin: 10px;
+     }
+
+   #city-input {
+      border: 2px solid #ccc;
+      padding: 5px; 
+      border-radius: 5px;
+      width: 300px;
+    }
+    .main-container {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    .text-form {
+      max-width: 400px;
+    }
+    html, body {
+      padding: 0;
+      margin: 0;
+    }
+    #earth_div {
+      width: 800px;
+      height: 800px;
+      position: relative;
+    }
+  </style>
+
+  <script src="https://www.webglearth.com/v2/api.js"></script>
+  <script>
+    const apiKey = 'eb9f0f09fa1632c2bb418c824565d47e';
+
+    const translations = {
+  uk: {
+    greeting: "Привіт, хочеш дізнатися <br> погоду у будь-якому місті зараз?",
+    placeholder: "Введи назву міста",
+    button: "Тепер натисни тут",
+    weatherInCity: "Погода у місті",
+    country: "Країна",
+    timezone: "Часовий пояс",
+    temperature: "Температура",
+    weather: "Погода",
+    pressure: "Тиск",
+    seaLevel: "Рівень моря",
+    windSpeed: "Швидкість вітру",
+    humidity: "Вологість",
+    noData: "Немає даних",
+  },
+  ru: {
+    greeting: "Привет, хочешь узнать <br> погоду в любом городе сейчас?",
+    placeholder: "Введите название города",
+    button: "Теперь нажми здесь",
+    weatherInCity: "Погода в городе",
+    country: "Страна",
+    timezone: "Часовой пояс",
+    temperature: "Температура",
+    weather: "Погода",
+    pressure: "Давление",
+    seaLevel: "Уровень моря",
+    windSpeed: "Скорость ветра",
+    humidity: "Влажность",
+    noData: "Нет данных",
+  },
+  en: {
+    greeting: "Hello, do you want to know <br> the weather in any city now?",
+    placeholder: "Enter city name",
+    button: "Now click here",
+    weatherInCity: "Weather in",
+    country: "Country",
+    timezone: "Timezone",
+    temperature: "Temperature",
+    weather: "Weather",
+    pressure: "Pressure",
+    seaLevel: "Sea level",
+    windSpeed: "Wind speed",
+    humidity: "Humidity",
+    noData: "No data",
+  },
+};
+
+let lastWeatherData = null; // Для збереження останніх даних
+
+function updatePageLanguage(language) {
+  const t = translations[language];
+  document.querySelector('h1').innerHTML = t.greeting;
+  document.getElementById('city-input').placeholder = t.placeholder;
+  document.querySelector('button').textContent = t.button;
+}
+
+
+    async function fetchWeatherData(city) {
+
+      const language = document.getElementById('language-selector').value; // Отримуємо обрану мову
+      const apiUrl = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=metric&lang=${language}`;
+
+      try {
+        const response = await fetch(apiUrl);
+        if (!response.ok) throw new Error('Спробуйте ввести трохи інакше');
+
+        const data = await response.json();
+        lastWeatherData = data; // Зберігаємо дані
+        console.log(data);
+        displayWeatherData(data);
+      } catch (error) {
+        console.error(error);
+        document.getElementById('weather-data').innerHTML = `<p style="color: green;">Вибачте: ${error.message}</p>`;
+      }
+    }
+
+    let currentMarker;
+
+    function displayWeatherData(data) {
+    const language = document.getElementById('language-selector').value;
+  const t = translations[language];
+
+      const weatherDataElement = document.getElementById('weather-data');
+      weatherDataElement.innerHTML = `
+    <h2>${t.weatherInCity} ${data.name}</h2>
+    <p>${t.country}: ${data.sys.country}</p>
+    <p>${t.timezone}: ${data.timezone}</p>
+    <p>${t.temperature}: ${data.main.temp} °C</p>
+    <p>${t.weather}: ${data.weather[0].description}</p>
+    <p>${t.pressure}: ${data.main.pressure}</p>
+    <p>${t.seaLevel}: ${data.main.sea_level || t.noData}</p>
+    <p>${t.windSpeed}: ${data.wind.speed} м/с</p>
+    <p>${t.humidity}: ${data.main.humidity}%</p> 
+      `;
+
+      const lat = data.coord.lat;
+      const lon = data.coord.lon;
+
+      if (currentMarker) {
+        earth.removeMarker(currentMarker);
+      }
+
+      currentMarker = WE.marker([lat, lon], {
+        color: 'red',
+      }).addTo(earth);
+
+      earth.setView([lat, lon], 3);
+    }
+    document.getElementById('language-selector').addEventListener('change', function(event) {
+  const selectedLanguage = event.target.value;
+  updatePageLanguage(selectedLanguage);
+
+  // Якщо дані погоди вже є, оновлюємо відображення
+  if (lastWeatherData) {
+    displayWeatherData(lastWeatherData);
+  }
+});
+
+    document.getElementById('city-form').addEventListener('submit', function(event) {
+      event.preventDefault();
+      const city = document.getElementById('city-input').value;
+      fetchWeatherData(city);
+    });
+
+    let earth;
+
+    function initialize() {
+      earth = new WE.map('earth_div');
+      WE.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap contributors'
+      }).addTo(earth);
+      earth.setView([20, 0], 2);
+    }
+  </script>
+
+  <body onload="initialize()">
+    <div id="earth_div"></div>
+  </body>
+</html>
