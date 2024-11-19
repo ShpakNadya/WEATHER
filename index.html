@@ -139,7 +139,7 @@ function updatePageLanguage(language) {
         displayWeatherData(data);
       } catch (error) {
         console.error(error);
-        document.getElementById('weather-data').innerHTML = `<p style="color: green;">Вибачте: ${error.message}</p>`;
+        document.getElementById('weather-data').innerHTML = `<p style="color: black;">Вибачте: ${error.message}</p>`;
       }
     }
 
