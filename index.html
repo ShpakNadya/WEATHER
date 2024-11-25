@@ -77,9 +77,9 @@
     temperature: "Температура",
     weather: "Погода",
     pressure: "Тиск",
-    seaLevel: "Рівень моря",
+    seaLevel: "Тиск на рівні моря",
     windSpeed: "Швидкість вітру",
-    humidity: "Вологість",
+    humidity: "Вологість повітря",
     noData: "Немає даних",
   },
   ru: {
@@ -92,9 +92,9 @@
     temperature: "Температура",
     weather: "Погода",
     pressure: "Давление",
-    seaLevel: "Уровень моря",
+    seaLevel: "Атмосферное давление на уровне моря",
     windSpeed: "Скорость ветра",
-    humidity: "Влажность",
+    humidity: "Влажность воздуха",
     noData: "Нет данных",
   },
   en: {
@@ -107,9 +107,9 @@
     temperature: "Temperature",
     weather: "Weather",
     pressure: "Pressure",
-    seaLevel: "Sea level",
+    seaLevel: "Pressure on a sea level",
     windSpeed: "Wind speed",
-    humidity: "Humidity",
+    humidity: "Air humidity ",
     noData: "No data",
   },
 };
@@ -156,8 +156,8 @@ function updatePageLanguage(language) {
     <p>${t.timezone}: ${data.timezone}</p>
     <p>${t.temperature}: ${data.main.temp} °C</p>
     <p>${t.weather}: ${data.weather[0].description}</p>
-    <p>${t.pressure}: ${data.main.pressure}</p>
-    <p>${t.seaLevel}: ${data.main.sea_level || t.noData}</p>
+    <p>${t.pressure}: ${data.main.pressure} h/Pa</p>
+    <p>${t.seaLevel}: ${data.main.sea_level || t.noData} h/Pa</p>
     <p>${t.windSpeed}: ${data.wind.speed} м/с</p>
     <p>${t.humidity}: ${data.main.humidity}%</p> 
       `;
